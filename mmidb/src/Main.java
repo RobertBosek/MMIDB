@@ -1,7 +1,8 @@
 import java.sql.SQLException;
 
 public class Main {
-    public static void main (String[] args) {
+    @SuppressWarnings("unused")
+	public static void main (String[] args) {
         int[] home = {50,50};
         String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
         DBAdministration db = new DBAdministration(url, home);
