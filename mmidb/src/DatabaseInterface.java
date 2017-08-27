@@ -75,11 +75,11 @@ public class DatabaseInterface {
 		JButton btnAuftragAnlegen = new JButton("Auftrag anlegen");
 		btnAuftragAnlegen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 int[] pickUpAdress = new int[3];
-				 int[] destinationAdress = new int[3];
+				int[] pickUpAdress = new int[2];
+				int[] destinationAdress = new int[2];
 				
-				 pickUpAdress [0] = Integer.parseInt(pickUpStr.getText().toString());
-					pickUpAdress [1] = Integer.parseInt(pickUpAv.getText().toString());
+				pickUpAdress [0] = Integer.parseInt(pickUpStr.getText());
+				pickUpAdress [1] = Integer.parseInt(pickUpAv.getText());
 					
 
 				//	destinationAdress [0] = Integer.parseInt(destinationStr.getText().toString());
@@ -89,7 +89,7 @@ public class DatabaseInterface {
 			}
 		});
 		
-		//Fahrer einfügen
+		//Fahrer einfï¿½gen
 		JButton btnInsertDriver = new JButton("Fahrer eintragen");
 		btnInsertDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -103,7 +103,7 @@ public class DatabaseInterface {
 				
 				db.insertDriver(driverName);
 				
-				//Nach Eingabe der Daten, lösche die Felder
+				//Nach Eingabe der Daten, lï¿½sche die Felder
 				prename.setText(null);
 				surname.setText(null);	
 			}
@@ -123,7 +123,7 @@ public class DatabaseInterface {
 			}
 		});
 		
-		//nächsten Auftrag abrufen
+		//nï¿½chsten Auftrag abrufen
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
