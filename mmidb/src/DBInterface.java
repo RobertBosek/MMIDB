@@ -16,7 +16,6 @@ public class DBInterface {
 	private JFrame frame;
 	private JTextField prename;
 	private JTextField surname;
-	private JTextField id;
 	private JTextField id_update;
 	private JTextField prename_update;
 	private JTextField surname_update;
@@ -33,13 +32,14 @@ public class DBInterface {
 	private JTextField idDriverJobDone;
 	private JTextField destinationStreet;
 	private JTextField destinationAvenue;
+	
 	int [] pickUpAddress = new int[3];
 	int [] destinationAddress = new int[3];
 	int driverID;
-	 int[] home = new int[2];
+	int[] home = new int[2];
 	 
-	 private JTextField pickUpStreet;
-	 private JTextField pickUpAvenue;
+	private JTextField pickUpStreet;
+	private JTextField pickUpAvenue;
 	 
 	//DB Connection
 	public static void main(String[] args) {
