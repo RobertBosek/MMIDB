@@ -79,9 +79,7 @@ public class DBInterface {
 		JButton btnAuftragAnlegen = new JButton("Auftrag anlegen");
 		btnAuftragAnlegen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 int[] pickUpAdress = new int[3];
-				 int[] destinationAdress = new int[3];
-				
+			
 				 pickUpAddress[0]=Integer.parseInt(pickUpStreet.getText().toString());
 					pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
 					System.out.println(Integer.parseInt(pickUpStreet.getText().toString())+Integer.parseInt(pickUpAvenue.getText().toString()));
