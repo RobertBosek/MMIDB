@@ -3,59 +3,41 @@ import java.sql.*;
 class DBAdministration {
     private Statement statement;
     public ResultSet response;
-    private int homeID;
+    private int homeID = 0;
     public Connection connection;
-
-    public static void main (String[] args) {
-        int[] home = {50,50};
-        String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
-        DBAdministration db = new DBAdministration(url, home);
-        String[] o = {"1","1"};
-        String[] d = {"5","7"};
-        String[] name = {"Hansi", "Bauer"};
-        
-        System.out.println(db.finishedJob(1));
+    
+    public DBAdministration(String url) {
         try {
-            db.connection.close();
-        }
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            connection = DriverManager.getConnection(url);
+            statement = connection.createStatement();
+            }
+
+        catch (ClassNotFoundException e) {
+            System.err.print("Klasse nicht gefunden.");
+            }
         catch (SQLException e) {
-            System.err.print(e.getMessage());
+            System.err.print("SQL -Ausnahme: ");
+            System.err.println(e.getMessage());
+            }
+        catch (Exception e) {
+            System.err.print("Ein -/Ausgabefehler");
             }
         }
-    
-		public DBAdministration(String url, int[] home) {
-			
-			try {
-				Class.forName("com.mysql.jdbc.Driver").newInstance();
-				connection = DriverManager.getConnection(url);
-				statement = connection.createStatement();
-				}
-			
-			catch (ClassNotFoundException e) {
-				System.err.print("Klasse nicht gefunden.");
-				}
-			catch (SQLException e) {
-				System.err.print("SQL -Ausnahme: ");
-				System.err.println(e.getMessage());
-				}
-			catch (Exception e) {
-				System.err.print("Ein -/Ausgabefehler");
-				}
-			}
 
 public String insertJob(int[] origin, int[] destination) {
     try {
         int originID = getAddressID(origin);
         int destinationID = getAddressID(destination);
         long now = System.currentTimeMillis();
-        statement.executeUpdate("INSERT INTO assignments(done, id_driver, time) VALUES ('N', null, " + now + ")",
+        statement.executeUpdate("INSERT INTO assignments(done, id_driver, time) VALUES ('N', -1, " + now + ")",
                 Statement.RETURN_GENERATED_KEYS);
         response = statement.getGeneratedKeys();
         response.next();
         String jobID = response.getString(1);
         statement.execute("INSERT INTO origin VALUES(" + jobID + ", " + originID + ")");
         statement.execute("INSERT INTO destination VALUES(" + jobID + ", " + destinationID + ")");
-        return jobID; /* hier evtl mehr details als rückgabe?!*/
+        return jobID; /* hier evtl mehr details als rï¿½ckgabe?!*/
     }
     catch (SQLException e) {
         System.err.print("insertJob SQL-Ausnahme: ");
@@ -117,11 +99,13 @@ public String getJob(int driverID) {
 public String finishedJob (int driverID) {
     try {
         response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID);
-         while (response.next()) {
-        statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + response.getInt(1));
-        response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + response.getInt(1));
         response.next();
-        }
+        int assignmentID = response.getInt(1);
+        statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + assignmentID);
+        statement.execute("DELETE FROM assigned WHERE id_assignment=" + assignmentID);
+        response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + assignmentID);
+        response.next();
+        statement.execute("UPDATE locations SET id_address=" + response.getInt(1) + " WHERE id_driver=" + driverID);
         return "successful";
     }
     catch (SQLException e) {
@@ -138,12 +122,11 @@ private int getClosestJob(int currentLocationID) {
         int locationStreet = response.getInt("street");
         int locationAvenue = response.getInt("avenue");
         response = statement.executeQuery("SELECT assignments.id_assignment, address.street, address.avenue " +
-                "FROM assignments, origin, address WHERE assignments.done='N' AND assignments.id_driver=null " +
+                "FROM assignments, origin, address WHERE assignments.done='N' AND assignments.id_driver=-1 " +
                 "AND assignments.id_assignment = origin.id_assignment AND origin.id_address = address.id_address");
         int closestJobID = -1;
         int distance = -1;
-        if(response.next()) { 
-            System.out.println(response.getString("id_assignment"));
+        while(response.next()) {
             int jobStreet = response.getInt("street");
             int jobAvenue = response.getInt("avenue");
             int currentDist = Math.abs(locationStreet - jobStreet) + Math.abs(locationAvenue - jobAvenue);
