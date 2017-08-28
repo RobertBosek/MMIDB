@@ -19,21 +19,18 @@ public class DBInterface {
 	private JTextField idUpdateDriver;
 	private JTextField prenameUpdate;
 	private JTextField surnameUpdate;
-	private JTextField id_driver_job_done;
-	private JTextField currentStreet;
-	private JTextField street;
-	private JTextField currentAvenue;
 	private JTextField idDriverJobDone;
+	private JTextField street;
 	private JTextField destinationStreet;
 	private JTextField destinationAvenue;
-	
-	int [] pickUpAddress = new int[3];
-	int [] destinationAddress = new int[3];
-	int driverID;
-	int[] home = new int[2];
-	 
+	private int[] pickUpAddress = new int[3];
+	private int[] destinationAddress = new int[3];
+	private int[] home = new int[2];
+	private String jobID;
 	private JTextField pickUpStreet;
 	private JTextField pickUpAvenue;
+	private JTextField idDriverGetNextAssignment;
+	private JLabel lblJobID;
 	 
 	//DB Connection
 	public static void main(String[] args) {
@@ -69,16 +66,14 @@ public class DBInterface {
 		JLabel lblFahrer = new JLabel("Fahrer");
 		lblFahrer.setFont(new Font("Tahoma", Font.BOLD, 13));
 		
-		
 		JButton btnNewAssignment = new JButton("Auftrag anlegen");
 		btnNewAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pickUpAddress[0]=Integer.parseInt(pickUpStreet.getText().toString());
 				pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
-
 				destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
 				destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
-				db.insertJob(pickUpAddress, destinationAddress);
+				jobID = (db.insertJob(pickUpAddress, destinationAddress)); //Auftragsnummer
 				}
 		});
 		
@@ -91,14 +86,12 @@ public class DBInterface {
 				driverName [0] = prenameDriver.getText();
 				driverName [1] = surnameDriver.getText();
 				
-			
-				driverID = Integer.parseInt(db.insertDriver(driverName)); //DRIVERID ZEIGEN
+				int driverID = Integer.parseInt(db.insertDriver(driverName)); //DRIVERID ZEIGEN
 				db.getAddressID(home);
-				
 			}
 		});
-		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		
+		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -107,6 +100,7 @@ public class DBInterface {
 				driverNameUpdate [0] = prenameUpdate.getText();
 				driverNameUpdate [1] = surnameUpdate.getText();
 				db.updateDriver(idToUpdate, driverNameUpdate);
+				
 			}
 		});
 		
@@ -114,7 +108,9 @@ public class DBInterface {
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+				int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
+				db.getJob(driverIDGetNextJob);
+				lblJobID.setText(jobID);
 			}
 		});
 		
@@ -122,8 +118,8 @@ public class DBInterface {
 		JButton btnAssignmentDelivered = new JButton("Auftrag erledigt");
 		btnAssignmentDelivered.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int idDriverJobDoneInt = Integer.parseInt(idDriverJobDone.getText().toString());
-				db.finishedJob(idDriverJobDoneInt);
+				int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
+				db.finishedJob(jobDoneDriverID);
 				}
 		});
 		
@@ -142,17 +138,11 @@ public class DBInterface {
 		surnameUpdate = new HintTextField("New surname");
 		surnameUpdate.setColumns(10);
 		
-		id_driver_job_done = new HintTextField("id");
-		id_driver_job_done.setColumns(10);
-		
-		currentStreet = new HintTextField("Current Str. Nr.");
-		currentStreet.setColumns(10);
+		idDriverJobDone = new HintTextField("id");
+		idDriverJobDone.setColumns(10);
 		
 		street = new HintTextField("Str. Nr");
 		street.setColumns(10);
-		
-		currentAvenue = new HintTextField("Current Av. Nr.");
-		currentAvenue.setColumns(10);
 		
 		pickUpStreet = new HintTextField("Start Str. Nr.");
 		pickUpStreet.setColumns(10);
@@ -160,11 +150,14 @@ public class DBInterface {
 		pickUpAvenue = new HintTextField("Start Av. Nr.");
 		pickUpAvenue.setColumns(10);
 		
-		HintTextField destinationStreet = new HintTextField("Ziel Str. Nr.");
+		destinationStreet = new HintTextField("Ziel Str. Nr.");
 		destinationStreet.setColumns(10);
 		
-		HintTextField destinationAvenue = new HintTextField("Ziel Av. Nr.");
+		destinationAvenue = new HintTextField("Ziel Av. Nr.");
 		destinationAvenue.setColumns(10);
+		
+		idDriverGetNextAssignment = new HintTextField("id");
+		idDriverGetNextAssignment.setColumns(10);
 		
 		JLabel lblAuftragErledigt = new JLabel("Auftrag erledigt");
 		
@@ -175,6 +168,9 @@ public class DBInterface {
 		JLabel lblFahrerndern_1 = new JLabel("Fahrer einf\u00FCgen");
 		
 		JLabel lblAuftragAnlegen = new JLabel("Auftrag anlegen");
+		
+		lblJobID = new JLabel("Auftragsnummer");
+		
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -199,7 +195,7 @@ public class DBInterface {
 									.addComponent(prenameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(surnameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addGap(134)
+									.addGap(18)
 									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
 								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
@@ -219,17 +215,17 @@ public class DBInterface {
 							.addComponent(lblNchstenAuftrag, GroupLayout.PREFERRED_SIZE, 139, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(currentStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(currentAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
+							.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(lblJobID))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblAuftragErledigt, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(id_driver_job_done, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
+							.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnAssignmentDelivered, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
@@ -241,7 +237,7 @@ public class DBInterface {
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblAuftragAnlegen)))
-					.addContainerGap(31, Short.MAX_VALUE))
+					.addContainerGap(101, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -278,14 +274,14 @@ public class DBInterface {
 					.addComponent(lblNchstenAuftrag)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(currentStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(currentAvenue, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(btnGetNextAssignment))
+						.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnGetNextAssignment)
+						.addComponent(lblJobID))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(lblAuftragErledigt)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(id_driver_job_done, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnAssignmentDelivered))
 					.addGap(42))
 		);
