@@ -165,11 +165,12 @@ public class DBInterface {
 		street = new HintTextField("Str. Nr");
 		street.setColumns(10);
 		
-		avenue = new HintTextField("Av. Nr");
-		avenue.setColumns(10);
 		
 		currentAvenue = new HintTextField("Current Av. Nr.");
 		currentAvenue.setColumns(10);
+		
+		avenue = new HintTextField("Av. Nr");
+		avenue.setColumns(10);
 		
 		pickUpStreet = new HintTextField("Start Str. Nr.");
 		pickUpStreet.setColumns(10);
@@ -191,8 +192,7 @@ public class DBInterface {
 		
 		JLabel lblFahrerndern_1 = new JLabel("Fahrer \u00E4ndern");
 		
-		avenue = new JTextField();
-		avenue.setColumns(10);
+		
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
