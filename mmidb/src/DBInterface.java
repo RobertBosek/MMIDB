@@ -16,16 +16,12 @@ public class DBInterface {
 	private JFrame frame;
 	private JTextField prename;
 	private JTextField surname;
-	private JTextField id_update;
-	private JTextField prename_update;
-	private JTextField surname_update;
+	private JTextField idUpdateDriver;
+	private JTextField prenameUpdate;
+	private JTextField surnameUpdate;
 	private JTextField id_driver_job_done;
 	private JTextField currentStreet;
-	private JTextField job_done;
-	private JTextField Date;
-	private JTextField Clock;
 	private JTextField street;
-	private JTextField avenue;
 	private JTextField currentAvenue;
 	private JTextField prenameDriver;
 	private JTextField surnameDriver;
@@ -40,6 +36,7 @@ public class DBInterface {
 	 
 	private JTextField pickUpStreet;
 	private JTextField pickUpAvenue;
+	private JTextField avenue;
 	 
 	//DB Connection
 	public static void main(String[] args) {
@@ -51,7 +48,7 @@ public class DBInterface {
 					
 					 int[] home = {50,50};
 				     String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
-				     db = new DBAdministration(url);
+				     db = new DBAdministration(url, home);
 				        
 					} catch (Exception e) {
 					e.printStackTrace();
@@ -117,10 +114,10 @@ public class DBInterface {
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				int idToUpdate = Integer.parseInt(id_update.getText().toString());
+				int idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
 				String[] driverNameUpdate = new String[3];
-				driverNameUpdate [0] = prename_update.getText();
-				driverNameUpdate [1] = surname_update.getText();
+				driverNameUpdate [0] = prenameUpdate.getText();
+				driverNameUpdate [1] = surnameUpdate.getText();
 				db.updateDriver(idToUpdate, driverNameUpdate);
 				prename.setText(null);
 				surname.setText(null);
@@ -150,14 +147,14 @@ public class DBInterface {
 		surname = new HintTextField("Surname");
 		surname.setColumns(10);
 		
-		id_update = new HintTextField("id");
-		id_update.setColumns(10);
+		idUpdateDriver = new HintTextField("id");
+		idUpdateDriver.setColumns(10);
 		
-		prename_update = new HintTextField("New prename");
-		prename_update.setColumns(10);
+		prenameUpdate = new HintTextField("New prename");
+		prenameUpdate.setColumns(10);
 		
-		surname_update = new HintTextField("New surname");
-		surname_update.setColumns(10);
+		surnameUpdate = new HintTextField("New surname");
+		surnameUpdate.setColumns(10);
 		
 		id_driver_job_done = new HintTextField("id");
 		id_driver_job_done.setColumns(10);
@@ -165,23 +162,15 @@ public class DBInterface {
 		currentStreet = new HintTextField("Current Str. Nr.");
 		currentStreet.setColumns(10);
 		
-		job_done = new JTextField();
-		job_done.setColumns(10);
-		
-		Date = new HintTextField("Date");
-		Date.setColumns(10);
-		
-		Clock = new HintTextField("Clock");
-		Clock.setColumns(10);
-		
 		street = new HintTextField("Str. Nr");
 		street.setColumns(10);
 		
-		avenue = new HintTextField("Av. Nr.");
-		avenue.setColumns(10);
 		
 		currentAvenue = new HintTextField("Current Av. Nr.");
 		currentAvenue.setColumns(10);
+		
+		avenue = new HintTextField("Av. Nr");
+		avenue.setColumns(10);
 		
 		pickUpStreet = new HintTextField("Start Str. Nr.");
 		pickUpStreet.setColumns(10);
@@ -189,11 +178,11 @@ public class DBInterface {
 		pickUpAvenue = new HintTextField("Start Av. Nr.");
 		pickUpAvenue.setColumns(10);
 		
-		HintTextField destinationStr = new HintTextField("Ziel Str. Nr.");
-		destinationStr.setColumns(10);
+		HintTextField destinationStreet = new HintTextField("Ziel Str. Nr.");
+		destinationStreet.setColumns(10);
 		
-		HintTextField destinationAv = new HintTextField("Ziel Av. Nr.");
-		destinationAv.setColumns(10);
+		HintTextField destinationAvenue = new HintTextField("Ziel Av. Nr.");
+		destinationAvenue.setColumns(10);
 		
 		JLabel lblAuftragErledigt = new JLabel("Auftrag erledigt");
 		
@@ -202,6 +191,8 @@ public class DBInterface {
 		JLabel lblFahrerndern = new JLabel("Fahrer \u00E4ndern");
 		
 		JLabel lblFahrerndern_1 = new JLabel("Fahrer \u00E4ndern");
+		
+		
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -212,46 +203,39 @@ public class DBInterface {
 							.addComponent(lblManager, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(lblFahrerndern_1, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
 							.addComponent(lblFahrerndern, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(id_update, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
+							.addComponent(idUpdateDriver, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(prename_update, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(prenameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(surname_update, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnUpdateDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(prename, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(surname, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(street, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(avenue, 0, 0, Short.MAX_VALUE))
-								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-									.addComponent(Date, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(Clock, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(avenue, GroupLayout.PREFERRED_SIZE, 51, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
+								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(pickUpAvenue, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(destinationStr, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+									.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(destinationAv, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)))
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(btnAuftragAnlegen, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)))
+									.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(btnAuftragAnlegen, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE))
@@ -272,10 +256,12 @@ public class DBInterface {
 							.addContainerGap()
 							.addComponent(id_driver_job_done, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(job_done, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnAssignmentDelivered, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(36, Short.MAX_VALUE))
+					.addGap(31))
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lblFahrerndern_1, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(466, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -284,14 +270,12 @@ public class DBInterface {
 					.addComponent(lblManager, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(Clock, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(pickUpAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(destinationStr, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(destinationAv, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(Date, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnAuftragAnlegen))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGap(11)
 					.addComponent(lblFahrerndern_1)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
@@ -304,9 +288,9 @@ public class DBInterface {
 					.addComponent(lblFahrerndern)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(id_update, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(prename_update, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(surname_update, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(idUpdateDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(prenameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnUpdateDriver))
 					.addGap(42)
 					.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
@@ -322,7 +306,6 @@ public class DBInterface {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(id_driver_job_done, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(job_done, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnAssignmentDelivered))
 					.addGap(42))
 		);
