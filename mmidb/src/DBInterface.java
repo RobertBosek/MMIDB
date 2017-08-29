@@ -1,9 +1,12 @@
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.InputMismatchException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.GroupLayout;
@@ -65,35 +68,64 @@ public class DBInterface {
 		lblFahrer.setFont(new Font("Tahoma", Font.BOLD, 13));
 		
 		JButton btnNewAssignment = new JButton("Auftrag anlegen");
+		
 		btnNewAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				pickUpAddress[0]=Integer.parseInt(pickUpStreet.getText().toString());
-				pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
-				destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
-				destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
-				jobID = (db.insertJob(pickUpAddress, destinationAddress)); //Auftragsnummer
+				try {
+					pickUpAddress[0]=Integer.parseInt(pickUpStreet.getText().toString());
+					pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
+					destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
+					destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
+					//Auftragsnummer
+					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
 				}
+				catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(frame, "Sie haben keinen numerischen Wert eingegeben!");
+				}
+			}	
 		});
 		
 		//Fahrer einfügen
 		JButton btnInsertDriver = new JButton("Fahrer eintragen");
 		btnInsertDriver.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				String[] driverName = new String[3];
+			public void actionPerformed(ActionEvent arg0) {	
+				boolean hasNumbers = false;
+				String[] driverName = new String[2];
 				driverName [0] = prenameDriver.getText();
 				driverName [1] = surnameDriver.getText();
-				
-				int driverID = Integer.parseInt(db.insertDriver(driverName)); //DRIVERID ZEIGEN
-				db.getAddressID(home);
-			}
-		});
+
+				for(int i = 0; i < driverName[0].length(); i++) {
+					for(int j = 0; j < driverName[1].length(); j++) {
+						if(driverName[0].charAt(i) >'a' && driverName[0].charAt(i) <'z') {
+							if(driverName[1].charAt(j) >'a') {
+								if(driverName[1].charAt(j) <'z'){
+									hasNumbers = false;
+									}
+								}
+							}else {
+								hasNumbers = true;
+								}
+						}
+					}
+				if(hasNumbers == true) {
+					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
+					} else { 
+						db.getAddressID(home);
+						}
+				}
+			});
 		
 		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int idToUpdate = 0;
+				try {
+					idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
+				}
+				catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
+				}
 				
-				int idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
 				String[] driverNameUpdate = new String[3];
 				driverNameUpdate [0] = prenameUpdate.getText();
 				driverNameUpdate [1] = surnameUpdate.getText();
@@ -105,20 +137,31 @@ public class DBInterface {
 		//nächsten Auftrag abrufen
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
+		//Nur Zahlen sind erlaubt
 			public void actionPerformed(ActionEvent arg0) {
-				int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
-				jobID = db.getJob(driverIDGetNextJob);
-				lblJobID.setText(jobID);
+				try {
+					int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
+					jobID = db.getJob(driverIDGetNextJob);
+					lblJobID.setText(jobID);
+				}
+				catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
+				}
 			}
 		});
-		
+
 		//Auftrag als erledigt markieren
 		JButton btnAssignmentDelivered = new JButton("Auftrag erledigt");
 		btnAssignmentDelivered.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
-				db.finishedJob(jobDoneDriverID);
+				try {
+					int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
+					db.finishedJob(jobDoneDriverID);
 				}
+				catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(frame, "Sie haben keinen numerischen Wert eingegeben!");
+				}
+			}
 		});
 		
 		prenameDriver = new HintTextField("Prename");
@@ -127,7 +170,7 @@ public class DBInterface {
 		surnameDriver = new HintTextField("Surname");
 		surnameDriver.setColumns(10);
 		
-		idUpdateDriver = new HintTextField("id");
+		idUpdateDriver = new HintTextField("FahrerID");
 		idUpdateDriver.setColumns(10);
 		
 		prenameUpdate = new HintTextField("New prename");
@@ -136,7 +179,7 @@ public class DBInterface {
 		surnameUpdate = new HintTextField("New surname");
 		surnameUpdate.setColumns(10);
 		
-		idDriverJobDone = new HintTextField("id");
+		idDriverJobDone = new HintTextField("FahrerID");
 		idDriverJobDone.setColumns(10);
 		
 		street = new HintTextField("Str. Nr");
@@ -154,7 +197,7 @@ public class DBInterface {
 		destinationAvenue = new HintTextField("Ziel Av. Nr.");
 		destinationAvenue.setColumns(10);
 		
-		idDriverGetNextAssignment = new HintTextField("id");
+		idDriverGetNextAssignment = new HintTextField("FahrerID");
 		idDriverGetNextAssignment.setColumns(10);
 		
 		JLabel lblAuftragErledigt = new JLabel("Auftrag erledigt");
@@ -184,27 +227,29 @@ public class DBInterface {
 							.addComponent(prenameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGap(18)
 							.addComponent(btnUpdateDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, 74, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(pickUpAvenue, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
+									.addGap(6)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(btnNewAssignment, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
+								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(prenameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(surnameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addGap(18)
-									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(pickUpAvenue, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-									.addGap(18)
-									.addComponent(btnNewAssignment, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))))
+									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)))
+							.addPreferredGap(ComponentPlacement.RELATED))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE))
@@ -213,18 +258,18 @@ public class DBInterface {
 							.addComponent(lblNchstenAuftrag, GroupLayout.PREFERRED_SIZE, 139, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
+							.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
 							.addGap(18)
 							.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(lblJobID))
+							.addGap(14)
+							.addComponent(lblJobID, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblAuftragErledigt, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGap(18)
 							.addComponent(btnAssignmentDelivered, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
@@ -235,7 +280,7 @@ public class DBInterface {
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblAuftragAnlegen)))
-					.addContainerGap(101, Short.MAX_VALUE))
+					.addContainerGap(27, GroupLayout.PREFERRED_SIZE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -247,9 +292,9 @@ public class DBInterface {
 					.addGap(7)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(pickUpAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnNewAssignment))
 					.addGap(11)
 					.addComponent(lblFahrerndern_1)
@@ -273,8 +318,8 @@ public class DBInterface {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnGetNextAssignment)
-						.addComponent(lblJobID))
+						.addComponent(lblJobID)
+						.addComponent(btnGetNextAssignment))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(lblAuftragErledigt)
 					.addPreferredGap(ComponentPlacement.RELATED)
