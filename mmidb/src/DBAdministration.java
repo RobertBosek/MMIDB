@@ -8,11 +8,11 @@ class DBAdministration {
     private Connection connection;
     
 public DBAdministration(String url) {
-    this.homeID = getAddressID(home);
     try {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         connection = DriverManager.getConnection(url);
         statement = connection.createStatement();
+        homeID = getAddressID(home);
         }
     catch (SQLException e) {
         System.err.print("SQL -Ausnahme: ");

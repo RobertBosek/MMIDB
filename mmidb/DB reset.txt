@@ -1,0 +1,25 @@
+CREATE TABLE address (
+	id_address int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	street int NOT NULL,
+	avenue int NOT NULL);
+CREATE TABLE assigned(
+	id_assignment int NOT NULL PRIMARY KEY,
+	id_driver int NOT NULL);
+CREATE TABLE assignments(
+	id_assignment int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	done enum NOT NULL,
+	id_driver int NOT NULL,
+	timedate bigint NOT NULL);
+CREATE TABLE destination (
+	id_assignment int NOT NULL PRIMARY KEY,
+	id_address int NOT NULL);
+CREATE TABLE drivers(
+	id_driver int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	prename varchar(255) NOT NULL,
+	surname varchar(255) NOT NULL);
+CREATE TABLE locations (
+	id_driver int NOT NULL PRIMARY KEY,
+	id_address int NOT NULL);
+CREATE TABLE origin (
+	id_assignment int NOT NULL PRIMARY KEY,
+	id_address int NOT NULL);

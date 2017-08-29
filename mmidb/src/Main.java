@@ -11,11 +11,5 @@ public class Main {
         String[] name = {"Brann", "Stark"};
         String[] uname = {"Ned", "Stark"};
         System.out.println(db.insertJob(o, d));
-        try {
-            db.connection.close();
         }
-        catch (SQLException e) {
-            System.err.print(e.getMessage());
-        }
-    }
 }
