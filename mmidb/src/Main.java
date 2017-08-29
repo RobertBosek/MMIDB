@@ -10,7 +10,7 @@ public class Main {
         int[] d = {3,1};
         String[] name = {"Brann", "Stark"};
         String[] uname = {"Ned", "Stark"};
-        System.out.println(db.finishedJob(68));
+        System.out.println(db.finishedJob(81));
         try {
             db.connection.close();
         }

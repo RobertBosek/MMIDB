@@ -80,13 +80,14 @@ public String getJob(int driverID) {
         response = statement.executeQuery("SELECT id_address FROM locations WHERE id_driver=" + driverID);
         response.next();
         int locationID = response.getInt(1);
-        int jobID = getClosestJob(locationID);
-        if (jobID != -1) {
-            statement.execute("INSERT INTO assigned VALUES(" + jobID + ", " + driverID + ")");
-            statement.execute("UPDATE assignments SET id_driver=" + driverID + " WHERE id_assignment =" + jobID);
-            return String.valueOf(jobID); /* evtl mehr infos?! */
+        int[] closestJob = getClosestJob(locationID);
+        if (closestJob != null) {
+            statement.execute("INSERT INTO assigned VALUES(" + closestJob[0] + ", " + driverID + ")");
+            statement.execute("UPDATE assignments SET id_driver=" + driverID + " WHERE id_assignment =" + closestJob[0]);
+            String jobInfo = "ID=" + closestJob[0] + " von " + closestJob[1] + "St./" + closestJob[2] + "Av., nach " + closestJob[3] + "St./" + closestJob[4] + "Av.";
+            return jobInfo;
         } else {
-            return "no job found";
+            return "no new job found";
         }
     }
     catch (SQLException e) {
@@ -98,14 +99,15 @@ public String getJob(int driverID) {
 
 public String finishedJob (int driverID) {
     try {
-        response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID);
+        response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID + " AND done= 'N'");
         response.next();
         int assignmentID = response.getInt(1);
         statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + assignmentID);
         statement.execute("DELETE FROM assigned WHERE id_assignment=" + assignmentID);
         response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + assignmentID);
         response.next();
-        statement.execute("UPDATE locations SET id_address=" + response.getInt(1) + " WHERE id_driver=" + driverID);
+        int addressID = response.getInt(1);
+        statement.execute("UPDATE locations SET id_address=" + addressID + " WHERE id_driver=" + driverID);
         return "successful";
     }
     catch (SQLException e) {
@@ -115,7 +117,7 @@ public String finishedJob (int driverID) {
     }
 }
 
-private int getClosestJob(int currentLocationID) {
+private int[] getClosestJob(int currentLocationID) {
     try {
         response = statement.executeQuery("SELECT street, avenue FROM address WHERE id_address =" + currentLocationID);
         response.next();
@@ -124,23 +126,30 @@ private int getClosestJob(int currentLocationID) {
         response = statement.executeQuery("SELECT assignments.id_assignment, address.street, address.avenue " +
                 "FROM assignments, origin, address WHERE assignments.done='N' AND assignments.id_driver=-1 " +
                 "AND assignments.id_assignment = origin.id_assignment AND origin.id_address = address.id_address");
-        int closestJobID = -1;
+        int[] closestJob = {-1, -1, -1, -1, -1};
         int distance = -1;
         while(response.next()) {
             int jobStreet = response.getInt("street");
             int jobAvenue = response.getInt("avenue");
             int currentDist = Math.abs(locationStreet - jobStreet) + Math.abs(locationAvenue - jobAvenue);
             if (distance == -1 || distance > currentDist) {
-                closestJobID = response.getInt("id_assignment");
+                closestJob[0] = response.getInt("id_assignment");
                 distance = currentDist;
+                closestJob[1] = jobStreet;
+                closestJob[2] = jobAvenue;
             }
         }
-        return closestJobID;
+        response = statement.executeQuery("SELECT address.street, address.avenue FROM destination, address " +
+                "WHERE destination.id_address = address.id_address AND destination.id_assignment=" + closestJob[0]);
+        response.next();
+        closestJob[3] = response.getInt("street");
+        closestJob[4] = response.getInt(("avenue"));
+        return closestJob;
     }
     catch (SQLException e) {
         System.err.print("getClosest SQL-Ausnahme: ");
         System.err.println(e.getMessage());
-        return -1;
+        return null;
     }
 }
 
