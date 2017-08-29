@@ -1,43 +1,45 @@
 import java.sql.*;
 
 class DBAdministration {
+    private int[] home = {10,10};
     private Statement statement;
-    public ResultSet response;
-    private int homeID = 0;
-    public Connection connection;
+    private ResultSet response;
+    private int homeID;
+    private Connection connection;
     
-    public DBAdministration(String url) {
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection(url);
-            statement = connection.createStatement();
-            }
-
-        catch (ClassNotFoundException e) {
-            System.err.print("Klasse nicht gefunden.");
-            }
-        catch (SQLException e) {
-            System.err.print("SQL -Ausnahme: ");
-            System.err.println(e.getMessage());
-            }
-        catch (Exception e) {
-            System.err.print("Ein -/Ausgabefehler");
-            }
+public DBAdministration(String url) {
+    this.homeID = getAddressID(home);
+    try {
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+        connection = DriverManager.getConnection(url);
+        statement = connection.createStatement();
         }
+    catch (SQLException e) {
+        System.err.print("SQL -Ausnahme: ");
+        System.err.println(e.getMessage());
+        }
+    catch (Exception e) {
+        System.err.print("Ein -/Ausgabefehler");
+        }
+    }
 
 public String insertJob(int[] origin, int[] destination) {
     try {
         int originID = getAddressID(origin);
         int destinationID = getAddressID(destination);
-        long now = System.currentTimeMillis();
-        statement.executeUpdate("INSERT INTO assignments(done, id_driver, time) VALUES ('N', -1, " + now + ")",
-                Statement.RETURN_GENERATED_KEYS);
-        response = statement.getGeneratedKeys();
-        response.next();
-        String jobID = response.getString(1);
-        statement.execute("INSERT INTO origin VALUES(" + jobID + ", " + originID + ")");
-        statement.execute("INSERT INTO destination VALUES(" + jobID + ", " + destinationID + ")");
-        return jobID; /* hier evtl mehr details als r�ckgabe?!*/
+        if (originID != -1 && destinationID != -1) {
+            long now = System.currentTimeMillis();
+            statement.executeUpdate("INSERT INTO assignments(done, id_driver, time) VALUES ('N', -1, " + now + ")",
+                    Statement.RETURN_GENERATED_KEYS);
+            response = statement.getGeneratedKeys();
+            response.next();
+            String jobID = response.getString(1);
+            statement.execute("INSERT INTO origin VALUES(" + jobID + ", " + originID + ")");
+            statement.execute("INSERT INTO destination VALUES(" + jobID + ", " + destinationID + ")");
+            return "Auftrag erfolgreich erstellt - Auftragsnr. " + jobID;
+        } else {
+            return null;
+        }
     }
     catch (SQLException e) {
         System.err.print("insertJob SQL-Ausnahme: ");
@@ -53,8 +55,13 @@ public String insertDriver(String[] name) {
         response = statement.getGeneratedKeys();
         response.next();
         int driverID = response.getInt(1);
-        setLocation(driverID, homeID);
-        return String.valueOf(driverID); /*evtl mehr infos?! */
+        response = statement.executeQuery("SELECT * FROM locations WHERE id_driver=" + driverID);
+        if(response.next()) {
+            statement.execute("UPDATE locations SET id_address=" + homeID + " WHERE id_driver =" + driverID);
+        } else {
+            statement.execute("INSERT INTO locations VALUES(" + driverID + ", " + homeID + ")");
+        }
+        return "Fahrer wurde mit Personalnummer " + driverID + " erstellt.";
     }
     catch (SQLException e) {
         System.err.print("insertDriver SQL-Ausnahme: ");
@@ -63,10 +70,15 @@ public String insertDriver(String[] name) {
     }
 }
 
-public String updateDriver(int id, String[] name) {
+public String updateDriver(int driverID, String[] name) {
     try {
-        statement.execute("UPDATE drivers SET prename='" + name[0] + "', surname='" + name[1] + "' WHERE id_driver=" + id);
-        return "successful";
+        response = statement.executeQuery("SELECT id_driver FROM drivers WHERE id_driver=" + driverID);
+        if (response.next()) {
+            statement.execute("UPDATE drivers SET prename='" + name[0] + "', surname='" + name[1] + "' WHERE id_driver=" + driverID);
+            return "Fahrer " + driverID + " erfolgreich geändert.";
+        } else {
+            return "Fahrernummer " + driverID + " nicht vorhanden.";
+        }
     }
     catch (SQLException e) {
         System.err.print("updateDriver SQL-Ausnahme: ");
@@ -77,17 +89,22 @@ public String updateDriver(int id, String[] name) {
 
 public String getJob(int driverID) {
     try {
-        response = statement.executeQuery("SELECT id_address FROM locations WHERE id_driver=" + driverID);
-        response.next();
-        int locationID = response.getInt(1);
-        int[] closestJob = getClosestJob(locationID);
-        if (closestJob != null) {
-            statement.execute("INSERT INTO assigned VALUES(" + closestJob[0] + ", " + driverID + ")");
-            statement.execute("UPDATE assignments SET id_driver=" + driverID + " WHERE id_assignment =" + closestJob[0]);
-            String jobInfo = "ID=" + closestJob[0] + " von " + closestJob[1] + "St./" + closestJob[2] + "Av., nach " + closestJob[3] + "St./" + closestJob[4] + "Av.";
-            return jobInfo;
+        response = statement.executeQuery("SELECT id_driver FROM assigned WHERE id_driver=" + driverID);
+        if (!response.next()) {
+            response = statement.executeQuery("SELECT id_address FROM locations WHERE id_driver=" + driverID);
+            response.next();
+            int locationID = response.getInt(1);
+            int[] closestJob = getClosestJob(locationID);
+            if (closestJob != null) {
+                statement.execute("INSERT INTO assigned VALUES(" + closestJob[0] + ", " + driverID + ")");
+                statement.execute("UPDATE assignments SET id_driver=" + driverID + " WHERE id_assignment =" + closestJob[0]);
+                String jobInfo = "ID=" + closestJob[0] + " von " + closestJob[1] + "St./" + closestJob[2] + "Av., nach " + closestJob[3] + "St./" + closestJob[4] + "Av.";
+                return jobInfo;
+            } else {
+                return "Derzeit keine neuen Aufträge vorhanden.";
+            }
         } else {
-            return "no new job found";
+            return "Fahrer " + driverID + " bearbeitet bereits einen Auftrag.";
         }
     }
     catch (SQLException e) {
@@ -99,16 +116,21 @@ public String getJob(int driverID) {
 
 public String finishedJob (int driverID) {
     try {
-        response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID + " AND done= 'N'");
-        response.next();
-        int assignmentID = response.getInt(1);
-        statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + assignmentID);
-        statement.execute("DELETE FROM assigned WHERE id_assignment=" + assignmentID);
-        response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + assignmentID);
-        response.next();
-        int addressID = response.getInt(1);
-        statement.execute("UPDATE locations SET id_address=" + addressID + " WHERE id_driver=" + driverID);
-        return "successful";
+        response = statement.executeQuery("SELECT id_driver FROM assigned WHERE id_driver=" + driverID);
+        if (response.next()) {
+            response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID + " AND done= 'N'");
+            response.next();
+            int assignmentID = response.getInt(1);
+            statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + assignmentID);
+            statement.execute("DELETE FROM assigned WHERE id_assignment=" + assignmentID);
+            response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + assignmentID);
+            response.next();
+            int addressID = response.getInt(1);
+            statement.execute("UPDATE locations SET id_address=" + addressID + " WHERE id_driver=" + driverID);
+            return "Auftrag " + assignmentID + " erfolgreich bageschlossen.";
+        } else {
+            return "Fahrer " + driverID + " bearbeitet derzeit keinen Auftrag.";
+        }
     }
     catch (SQLException e) {
         System.err.print("finishedJob SQL-Ausnahme: ");
@@ -153,28 +175,13 @@ private int[] getClosestJob(int currentLocationID) {
     }
 }
 
-private void setLocation(int driverID, int locationID) {
-    try {
-        response = statement.executeQuery("SELECT * FROM locations WHERE id_driver=" + driverID);
-        if(response.next()) {
-            statement.execute("UPDATE locations SET id_address=" + locationID + " WHERE id_driver =" + driverID);
-        } else {
-            statement.execute("INSERT INTO locations VALUES(" + driverID + ", " + locationID + ")");
-        }
-    }
-    catch (SQLException e) {
-        System.err.print("setDriverLocation SQL-Ausnahme: ");
-        System.err.println(e.getMessage());
-    }
-}
-
 public int getAddressID (int[] values) {
     try {
-        String getAddressID = "SELECT id_address FROM address WHERE street=" + values[0] + " AND avenue=" + values[1];
-        response = statement.executeQuery(getAddressID);
+        String getAddressIDStr = "SELECT id_address FROM address WHERE street=" + values[0] + " AND avenue=" + values[1];
+        response = statement.executeQuery(getAddressIDStr);
         if (!response.next()) {
             statement.execute("INSERT INTO address(street, avenue) VALUES(" + values[0]+ ", " + values[1] + ")");
-            response = statement.executeQuery(getAddressID);
+            response = statement.executeQuery(getAddressIDStr);
             response.next();
         }
         return response.getInt("id_address");
