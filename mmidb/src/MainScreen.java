@@ -16,7 +16,8 @@ public class MainScreen extends JFrame{
     private JLabel lblHeadquater = new JLabel("Adresse der Zentrale:");
     private JLabel street = new JLabel("St.");
     private JLabel avenue = new JLabel("Av.");
-    private JLabel
+
+    private JButton btnConnect = new JButton("verbinden");
 
     public static void main (String[] args) {
         new MainScreen();
