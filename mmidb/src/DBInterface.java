@@ -80,7 +80,7 @@ public class DBInterface {
 					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
 				}
 				catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(frame, "Sie haben keinen numerischen Wert eingegeben!");
+					JOptionPane.showMessageDialog(frame, "Die Felder bestehen nur aus Ziffern!");
 				}
 			}	
 		});
@@ -119,6 +119,7 @@ public class DBInterface {
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int idToUpdate = 0;
+				boolean hasNumbers = false;
 				try {
 					idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
 				}
@@ -129,11 +130,27 @@ public class DBInterface {
 				String[] driverNameUpdate = new String[3];
 				driverNameUpdate [0] = prenameUpdate.getText();
 				driverNameUpdate [1] = surnameUpdate.getText();
-				db.updateDriver(idToUpdate, driverNameUpdate);
 				
-			}
-		});
-		
+				for(int i = 0; i < driverNameUpdate[0].length(); i++) {
+					for(int j = 0; j < driverNameUpdate[1].length(); j++) {
+						if(driverNameUpdate[0].charAt(i) >'a' && driverNameUpdate[0].charAt(i) <'z') {
+							if(driverNameUpdate[1].charAt(j) >'a') {
+								if(driverNameUpdate[1].charAt(j) <'z'){
+									hasNumbers = false;
+									}
+								}
+							}else {
+								hasNumbers = true;
+								}
+						}
+					}
+				if(hasNumbers == true) {
+					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
+					} else { 
+						db.updateDriver(idToUpdate, driverNameUpdate);
+						}
+				}
+			});
 		//nächsten Auftrag abrufen
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
@@ -159,7 +176,7 @@ public class DBInterface {
 					db.finishedJob(jobDoneDriverID);
 				}
 				catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(frame, "Sie haben keinen numerischen Wert eingegeben!");
+					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
 				}
 			}
 		});
