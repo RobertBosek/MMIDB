@@ -107,7 +107,11 @@ public class DBInterface {
 		btnGetNextAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
+<<<<<<< HEAD
 				jobID = db.getJob(driverIDGetNextJob);
+=======
+				db.getJob(driverIDGetNextJob);
+>>>>>>> 1fbf295b260370df41ff0f09ddafe8627c014ae2
 				lblJobID.setText(jobID);
 			}
 		});
