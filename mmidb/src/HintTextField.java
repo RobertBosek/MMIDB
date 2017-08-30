@@ -1,6 +1,3 @@
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.*;
@@ -8,6 +5,8 @@ import javax.swing.*;
 
 public class HintTextField extends JTextField implements FocusListener {
 
+
+  private static final long serialVersionUID = 5842598653181839261L;
   private final String hint;
   private boolean showingHint;
 
