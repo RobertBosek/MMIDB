@@ -1,7 +1,7 @@
 import java.sql.*;
 
 class DBAdministration {
-    private int[] home = {10,10};
+    private int[] home = new int[2];
     private Statement statement;
     private ResultSet response;
     private int homeID;
@@ -12,6 +12,12 @@ public DBAdministration(String url) {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         connection = DriverManager.getConnection(url);
         statement = connection.createStatement();
+        
+       int streetCentral = CentralAddressFrame.streetCentral;
+       int avenueCentral = CentralAddressFrame.avenueCentral;
+        home [0] = streetCentral;
+        home [1] = avenueCentral;
+        
         homeID = getAddressID(home);
         }
     catch (SQLException e) {
