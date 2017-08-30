@@ -148,7 +148,8 @@ public class DBInterface {
 						}
 					}
 				
-				if(hasNumbers == true) {
+				//If there is no input or if there are digits in the input, then this input is incorrect
+				if(hasNumbers == true || driverNameUpdate[0].equals("") || driverNameUpdate[1].equals("")) {
 					//Show a dialog if the input has been incorrect
 					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
 					} else { 
@@ -183,10 +184,12 @@ public class DBInterface {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
+					
 					//Show a dialog with the current state of the process
 					String finishedJob = db.finishedJob(jobDoneDriverID);
 					JOptionPane.showMessageDialog(frame, finishedJob);
 				}
+				//If the input contains letters, then this is a NumberFormatException
 				catch (NumberFormatException nfe) {
 					//Show a dialog with the input of driver's id contains letters
 					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
