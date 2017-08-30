@@ -110,7 +110,7 @@ public class DBInterface {
 						}
 					}
 				if(hasNumbers == true) {
-					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
+					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
 					} else { 
 						db.insertDriver(driverName);
 						db.getAddressID(home);
@@ -128,7 +128,7 @@ public class DBInterface {
 					idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
 				}
 				catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
+					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
 				}
 				
 				String[] driverNameUpdate = new String[3];
@@ -151,7 +151,7 @@ public class DBInterface {
 				
 				if(hasNumbers == true) {
 					//Show a dialog if the input has been incorrect
-					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
+					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
 					} else { 
 						db.updateDriver(idToUpdate, driverNameUpdate);
 						//Show a dialog with the current state of the process
@@ -173,7 +173,7 @@ public class DBInterface {
 				}
 				catch (NumberFormatException nfe) {
 					//Show a dialog if the input has not been correct
-					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
+					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
 				}
 			}
 		});
@@ -190,7 +190,7 @@ public class DBInterface {
 				}
 				catch (NumberFormatException nfe) {
 					//Show a dialog with the input of driver's id contains letters
-					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
+					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
 				}
 			}
 		});
