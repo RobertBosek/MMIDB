@@ -27,7 +27,6 @@ public class DBInterface {
 	private int[] pickUpAddress = new int[3];
 	private int[] destinationAddress = new int[3];
 	private int[] home = new int[2];
-	private String jobID;
 	private JTextField pickUpStreet;
 	private JTextField pickUpAvenue;
 	private JTextField idDriverGetNextAssignment;
