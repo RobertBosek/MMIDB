@@ -1,7 +1,9 @@
+import java.awt.Component;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -13,8 +15,9 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class DBInterface {
-
+public class DBInterface extends JFrame {
+	
+	//Initialisierung der Variablen und UI-Elemente
 	public static DBAdministration db;
 	private JFrame frame;
 	private JTextField prenameDriver;
@@ -37,20 +40,23 @@ public class DBInterface {
 	 
 	//DB Connection
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					DBInterface window = new DBInterface();
-					window.frame.setVisible(true);
-					String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
-				    db = new DBAdministration(url);
-				        
-					} catch (Exception e) {
+		EventQueue.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				//try - catch block
+				try 
+				{
+					NewWindow frame = new NewWindow();
+					frame.setVisible(true);					
+				}
+				catch (Exception e) 
+				{
 					e.printStackTrace();
 				}
 			}
 		});
-	}
+		}
 
 	public DBInterface() {
 		initialize();
@@ -109,12 +115,13 @@ public class DBInterface {
 					}
 				if(hasNumbers == true) {
 					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
-					} else { 
+					} else {
 						db.getAddressID(home);
 						}
 				}
 			});
 		
+		//Fahrer ändern
 		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -151,6 +158,7 @@ public class DBInterface {
 						}
 				}
 			});
+		
 		//nächsten Auftrag abrufen
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
@@ -346,5 +354,10 @@ public class DBInterface {
 					.addGap(42))
 		);
 		frame.getContentPane().setLayout(groupLayout);
+	}
+
+	public Component getPanel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
