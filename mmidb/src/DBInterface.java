@@ -14,7 +14,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 public class DBInterface {
 	
 	public static DBAdministration db;
-	private JFrame frame;
+	public JFrame frame;
 	private JTextField prenameDriver;
 	private JTextField surnameDriver;
 	private JTextField idUpdateDriver;
@@ -52,7 +52,8 @@ public class DBInterface {
 	public DBInterface() {
 		initialize();
 	}
-
+	
+	//initialize the UI-Elements and 
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 497, 437);
@@ -64,8 +65,8 @@ public class DBInterface {
 		JLabel lblFahrer = new JLabel("Fahrer");
 		lblFahrer.setFont(new Font("Tahoma", Font.BOLD, 13));
 		
+		//Input the address of the new order
 		JButton btnNewAssignment = new JButton("Auftrag anlegen");
-		
 		btnNewAssignment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -73,11 +74,12 @@ public class DBInterface {
 					pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
 					destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
 					destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
-					//Order Number
+					//jobID is the number of the order
 					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
 					JOptionPane.showMessageDialog(frame, "Der Auftrag ist angelegt!");
 				}
 				catch (NumberFormatException nfe) {
+					//Show a dialog if the input has been incorrect
 					JOptionPane.showMessageDialog(frame, "Bitte geben Sie nur die Nummer der Strasse und der Avenue ein!");
 				}
 			}	
@@ -117,6 +119,7 @@ public class DBInterface {
 				}
 			});
 		
+		//Change the names of a driver
 		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -147,9 +150,11 @@ public class DBInterface {
 					}
 				
 				if(hasNumbers == true) {
+					//Show a dialog if the input has been incorrect
 					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
 					} else { 
 						db.updateDriver(idToUpdate, driverNameUpdate);
+						//Show a dialog with the current state of the process
 						JOptionPane.showMessageDialog(frame, "Fahrer geändert!");
 						}
 				}
@@ -167,6 +172,7 @@ public class DBInterface {
 					lblJobID.setText(jobID);
 				}
 				catch (NumberFormatException nfe) {
+					//Show a dialog if the input has not been correct
 					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
 				}
 			}
@@ -179,9 +185,11 @@ public class DBInterface {
 				try {
 					int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
 					db.finishedJob(jobDoneDriverID);
+					//Show a dialog with the current state of the process
 					JOptionPane.showMessageDialog(frame, "Auftrag ist als erledigt markiert!");
 				}
 				catch (NumberFormatException nfe) {
+					//Show a dialog with the input of driver's id contains letters
 					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
 				}
 			}
