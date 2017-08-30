@@ -1,0 +1,152 @@
+import java.awt.Font;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import net.miginfocom.swing.MigLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class CentralAddressFrame{
+public static int streetCentral;
+public static int avenueCentral;
+private static JTextField streetCentralAddress;
+private static JTextField avenueCentralAddress;
+private static boolean correctInput = false;
+
+//introductionPanel is the first panel. There you can enter the address of the central.
+private static JPanel introductionPanel = new JPanel();
+JButton btnEnterDB;
+
+public static void main(String args[]) {
+	initialise();
+
+}
+
+//Get the street from the user's input and check if the input contains letters
+public static void getStreet() {
+	try {
+		streetCentral = Integer.parseInt(streetCentralAddress.getText());
+		correctInput = true;
+		}
+	//if the input of the street contains letters then this input is incorrect
+	catch (NumberFormatException nfe) {
+		correctInput = false;
+		}
+	}
+
+//Get the avenue from the user's input and check if the input contains letters
+public static void getAvenue() {
+	try {
+		 avenueCentral = Integer.parseInt(avenueCentralAddress.getText());
+		 correctInput = true;
+		}
+	//if the input of the avenue contains letters then this input is incorrect
+	catch (NumberFormatException nfe) {
+		correctInput = false;
+	}
+	}
+
+public static void initialise() {
+		JFrame frame = new JFrame("Address of the central");
+		JPanel panel = new JPanel();
+		
+		frame.getContentPane().add(panel);
+		panel.setLayout(new MigLayout("", "[94px][][94px][94px]", "[37px][37px][37px][37px][37px][37px][37px]"));
+		
+		JLabel label = new JLabel("");
+		panel.add(label, "cell 0 0,grow");
+		
+		JLabel lblAddressDerZentrale = new JLabel("Address der Zentrale");
+		lblAddressDerZentrale.setFont(new Font("Arial", Font.BOLD, 13));
+		panel.add(lblAddressDerZentrale, "cell 1 0,grow");
+		
+		JLabel label_1 = new JLabel("");
+		panel.add(label_1, "cell 2 0,grow");
+		
+		JLabel label_2 = new JLabel("");
+		panel.add(label_2, "cell 3 0,grow");
+		
+		JLabel label_3 = new JLabel("");
+		panel.add(label_3, "cell 0 1,grow");
+		
+		JLabel label_4 = new JLabel("");
+		panel.add(label_4, "cell 2 1,grow");
+		
+		JLabel label_5 = new JLabel("");
+		panel.add(label_5, "cell 3 1,grow");
+		
+		JLabel lblCentralAddressStreet = new JLabel("Street");
+		panel.add(lblCentralAddressStreet, "cell 0 2,alignx center,growy");
+		
+		streetCentralAddress = new JTextField();
+		panel.add(streetCentralAddress, "cell 1 2,alignx center,aligny center");
+		streetCentralAddress.setColumns(10);
+		
+		JLabel label_6 = new JLabel("");
+		panel.add(label_6, "cell 2 2,grow");
+		
+		JLabel label_7 = new JLabel("");
+		panel.add(label_7, "cell 3 2,grow");
+		
+		JLabel lblCentralAddressAvenue = new JLabel("Avenue");
+		panel.add(lblCentralAddressAvenue, "flowy,cell 0 3,alignx center");
+		
+		JLabel label_8 = new JLabel("");
+		panel.add(label_8, "cell 0 3,grow");
+		
+		avenueCentralAddress = new JTextField();
+		panel.add(avenueCentralAddress, "cell 1 3,alignx center,aligny center");
+		avenueCentralAddress.setColumns(10);
+		
+		JLabel label_9 = new JLabel("");
+		panel.add(label_9, "cell 3 3,grow");
+		
+		JLabel label_10 = new JLabel("");
+		panel.add(label_10, "cell 0 4,grow");
+		
+		//Implement the action listener of the button and check if the input has been correct.
+		//If the input has not been correct then show a new message dialog with the description of the problem
+		JButton btnEnterDB = new JButton("Weiter");
+		
+		btnEnterDB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				getStreet();
+				getAvenue();
+				if(correctInput == true) {
+					
+				//show the frame from the class DBInterface.java
+				DBInterface dbInterfaceFrame = new DBInterface();
+				dbInterfaceFrame.frame.setVisible(true);
+				} else {
+					JOptionPane.showMessageDialog(introductionPanel, "Bitte geben Sie nur die Nummern der Strasse und der Avenue ein!");
+				}
+			}
+		});
+		panel.add(btnEnterDB, "cell 1 4,alignx center,aligny center");
+		
+		JLabel label_11 = new JLabel("");
+		panel.add(label_11, "cell 2 4,grow");
+		
+		JLabel label_12 = new JLabel("");
+		panel.add(label_12, "cell 0 5,grow");
+		
+		JLabel label_13 = new JLabel("");
+		panel.add(label_13, "cell 2 5,grow");
+		
+		JLabel label_14 = new JLabel("");
+		panel.add(label_14, "cell 3 5,grow");
+		
+		JLabel label_15 = new JLabel("");
+		panel.add(label_15, "cell 0 6,grow");
+		
+		JLabel label_16 = new JLabel("");
+		panel.add(label_16, "cell 3 6,grow");
+		frame.setSize(300, 300);
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		}
+}
