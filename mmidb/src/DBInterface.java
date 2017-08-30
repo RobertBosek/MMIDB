@@ -98,16 +98,18 @@ public class DBInterface {
 				for(int i = 0; i < driverName[0].length(); i++) {
 					for(int j = 0; j < driverName[1].length(); j++) {
 						if(driverName[0].charAt(i) >'a' && driverName[0].charAt(i) <'z') {
-							if(driverName[1].charAt(j) >'a' && driverName[1].charAt(j) <'z'){
+							if(driverName[1].charAt(j) >='a' && driverName[1].charAt(j) <='z'){
 									hasNumbers = false;
 									}
-							}else {
+							} else {
 								hasNumbers = true;
 								}
 						}
 					}
-				if(hasNumbers == true) {
-					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
+				
+				//If there is no input or if there are digits in the input, then this input is incorrect
+				if(hasNumbers == true || driverName[0].equals("") || driverName [1].equals("")) {
+					JOptionPane.showMessageDialog(frame, "Die Namen sollten aus Buchstaben bestehen!");
 					} else { 
 						db.getAddressID(home);
 						String insertDriver = db.insertDriver(driverName);
@@ -130,7 +132,7 @@ public class DBInterface {
 				
 				String[] driverNameUpdate = new String[3];
 				
-				//Convert the User's input to lower case and then check if the input contains only letters
+				//Convert the user's input to lower case and then check if the input contains only letters
 				driverNameUpdate [0] = prenameUpdate.getText().toLowerCase();
 				driverNameUpdate [1] = surnameUpdate.getText().toLowerCase();
 				boolean hasNumbers = false;
