@@ -12,7 +12,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class DBInterface {
-
+	
 	public static DBAdministration db;
 	private JFrame frame;
 	private JTextField prenameDriver;
@@ -33,7 +33,7 @@ public class DBInterface {
 	private JTextField idDriverGetNextAssignment;
 	private JLabel lblJobID;
 	 
-	//DB Connection
+	//Database Connection
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -73,7 +73,7 @@ public class DBInterface {
 					pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
 					destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
 					destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
-					//Auftragsnummer
+					//Order Number
 					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
 					JOptionPane.showMessageDialog(frame, "Der Auftrag ist angelegt!");
 				}
@@ -83,7 +83,7 @@ public class DBInterface {
 			}	
 		});
 		
-		//Fahrer einfügen
+		//Insert the name of the new driver
 		JButton btnInsertDriver = new JButton("Fahrer eintragen");
 		btnInsertDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {	
@@ -129,6 +129,7 @@ public class DBInterface {
 				}
 				
 				String[] driverNameUpdate = new String[3];
+				
 				//Convert the User's input to lower case and then check if the input contains only letters
 				driverNameUpdate [0] = prenameUpdate.getText().toLowerCase();
 				driverNameUpdate [1] = surnameUpdate.getText().toLowerCase();
@@ -154,10 +155,11 @@ public class DBInterface {
 				}
 			});
 		
-		//nächsten Auftrag abrufen
+		//Get the next Order
 		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
 		btnGetNextAssignment.addActionListener(new ActionListener() {
-		//Nur Zahlen sind erlaubt
+			
+		//The input (FahrerID) must contain only digits
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
@@ -170,7 +172,7 @@ public class DBInterface {
 			}
 		});
 
-		//Auftrag als erledigt markieren
+		//Mark the order as delivered
 		JButton btnAssignmentDelivered = new JButton("Auftrag erledigt");
 		btnAssignmentDelivered.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
