@@ -1,364 +1,201 @@
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
+import java.sql.*;
 
-public class DBInterface {
-	
-	public static DBAdministration db;
-	public JFrame frame;
-	private JTextField prenameDriver;
-	private JTextField surnameDriver;
-	private JTextField idUpdateDriver;
-	private JTextField prenameUpdate;
-	private JTextField surnameUpdate;
-	private JTextField idDriverJobDone;
-	private JTextField street;
-	private JTextField destinationStreet;
-	private JTextField destinationAvenue;
-	private int[] pickUpAddress = new int[3];
-	private int[] destinationAddress = new int[3];
-	private int[] home = new int[2];
-	private String jobID;
-	private JTextField pickUpStreet;
-	private JTextField pickUpAvenue;
-	private JTextField idDriverGetNextAssignment;
-	private JLabel lblJobID;
-	 
-	//Database Connection
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					DBInterface window = new DBInterface();
-					window.frame.setVisible(true);
-					String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
-				    db = new DBAdministration(url);
-					} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+class DBAdministration {
+    private int[] home = new int[2];
+    private Statement statement;
+    private ResultSet response;
+    private int homeID;
+    private Connection connection;
+    
+public DBAdministration(String url) {
+    try {
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+        connection = DriverManager.getConnection(url);
+        statement = connection.createStatement();
+        
+       int streetCentral = CentralAddressFrame.streetCentral;
+       int avenueCentral = CentralAddressFrame.avenueCentral;
+        home [0] = streetCentral;
+        home [1] = avenueCentral;
+        
+        homeID = getAddressID(home);
+        }
+    catch (SQLException e) {
+        System.err.print("SQL -Ausnahme: ");
+        System.err.println(e.getMessage());
+        }
+    catch (Exception e) {
+        System.err.print("Ein -/Ausgabefehler");
+        }
+    }
 
-	public DBInterface() {
-		initialize();
-	}
-	
-	//initialize the UI-Elements and 
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 497, 437);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JLabel lblManager = new JLabel("Manager");
-		lblManager.setFont(new Font("Tahoma", Font.BOLD, 13));
-		
-		JLabel lblFahrer = new JLabel("Fahrer");
-		lblFahrer.setFont(new Font("Tahoma", Font.BOLD, 13));
-		
-		//Input the address of the new order
-		JButton btnNewAssignment = new JButton("Auftrag anlegen");
-		btnNewAssignment.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					pickUpAddress[0]=Integer.parseInt(pickUpStreet.getText().toString());
-					pickUpAddress[1]=Integer.parseInt(pickUpAvenue.getText().toString());
-					destinationAddress[0] = Integer.parseInt(destinationStreet.getText().toString());
-					destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
-					//jobID is the number of the order
-					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
-					JOptionPane.showMessageDialog(frame, "Der Auftrag ist angelegt!");
-				}
-				catch (NumberFormatException nfe) {
-					//Show a dialog if the input has been incorrect
-					JOptionPane.showMessageDialog(frame, "Bitte geben Sie nur die Nummer der Strasse und der Avenue ein!");
-				}
-			}	
-		});
-		
-		//Insert the name of the new driver
-		JButton btnInsertDriver = new JButton("Fahrer eintragen");
-		btnInsertDriver.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {	
-				boolean hasNumbers = false;
-				String[] driverName = new String[2];
-				
-				//Convert the User's input to lower case and then check if the input contains only letters
-				driverName [0] = prenameDriver.getText().toLowerCase();
-				driverName [1] = surnameDriver.getText().toLowerCase();
+public String insertJob(int[] origin, int[] destination) {
+    try {
+        int originID = getAddressID(origin);
+        int destinationID = getAddressID(destination);
+        if (originID != -1 && destinationID != -1) {
+            long now = System.currentTimeMillis();
+            statement.executeUpdate("INSERT INTO assignments(done, id_driver, time) VALUES ('N', -1, " + now + ")",
+                    Statement.RETURN_GENERATED_KEYS);
+            response = statement.getGeneratedKeys();
+            response.next();
+            String jobID = response.getString(1);
+            statement.execute("INSERT INTO origin VALUES(" + jobID + ", " + originID + ")");
+            statement.execute("INSERT INTO destination VALUES(" + jobID + ", " + destinationID + ")");
+            return "Auftrag erfolgreich erstellt - Auftragsnr. " + jobID;
+        } else {
+            return null;
+        }
+    }
+    catch (SQLException e) {
+        System.err.print("insertJob SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
 
-				for(int i = 0; i < driverName[0].length(); i++) {
-					for(int j = 0; j < driverName[1].length(); j++) {
-						if(driverName[0].charAt(i) >'a' && driverName[0].charAt(i) <'z') {
-							if(driverName[1].charAt(j) >'a') {
-								if(driverName[1].charAt(j) <'z'){
-									hasNumbers = false;
-									}
-								}
-							}else {
-								hasNumbers = true;
-								}
-						}
-					}
-				if(hasNumbers == true) {
-					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
-					} else { 
-						db.insertDriver(driverName);
-						db.getAddressID(home);
-						JOptionPane.showMessageDialog(frame, "Fahrer eingetragen!");
-						}
-				}
-			});
-		
-		//Change the names of a driver
-		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
-		btnUpdateDriver.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int idToUpdate = 0;
-				try {
-					idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
-				}
-				catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
-				}
-				
-				String[] driverNameUpdate = new String[3];
-				
-				//Convert the User's input to lower case and then check if the input contains only letters
-				driverNameUpdate [0] = prenameUpdate.getText().toLowerCase();
-				driverNameUpdate [1] = surnameUpdate.getText().toLowerCase();
-				boolean hasNumbers = false;
+public String insertDriver(String[] name) {
+    try {
+        statement.executeUpdate("INSERT INTO drivers(prename, surname) VALUES ('" + name[0] + "', '" + name[1] + "')",
+                Statement.RETURN_GENERATED_KEYS);
+        response = statement.getGeneratedKeys();
+        response.next();
+        int driverID = response.getInt(1);
+        response = statement.executeQuery("SELECT * FROM locations WHERE id_driver=" + driverID);
+        if(response.next()) {
+            statement.execute("UPDATE locations SET id_address=" + homeID + " WHERE id_driver =" + driverID);
+        } else {
+            statement.execute("INSERT INTO locations VALUES(" + driverID + ", " + homeID + ")");
+        }
+        return "Fahrer wurde mit Personalnummer " + driverID + " erstellt.";
+    }
+    catch (SQLException e) {
+        System.err.print("insertDriver SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
 
-				for(int i = 0; i < driverNameUpdate[0].length(); i++) {
-					for(int j = 0; j < driverNameUpdate[1].length(); j++) {
-						if(driverNameUpdate[0].charAt(i) >'a' && driverNameUpdate[0].charAt(i) <'z') {
-							if(driverNameUpdate[1].charAt(j) >'a' && driverNameUpdate[1].charAt(j) <'z')
-								hasNumbers = false;
-								} else {
-								hasNumbers = true;
-								}
-						}
-					}
-				
-				if(hasNumbers == true) {
-					//Show a dialog if the input has been incorrect
-					JOptionPane.showMessageDialog(frame, "Die Namen sollten nur aus Buchstaben bestehen!");
-					} else { 
-						db.updateDriver(idToUpdate, driverNameUpdate);
-						//Show a dialog with the current state of the process
-						JOptionPane.showMessageDialog(frame, "Fahrer geändert!");
-						}
-				}
-			});
-		
-		//Get the next Order
-		JButton btnGetNextAssignment = new JButton("n\u00E4chsten Auftrag abrufen");
-		btnGetNextAssignment.addActionListener(new ActionListener() {
-			
-		//The input (FahrerID) must contain only digits
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					int driverIDGetNextJob = Integer.parseInt(idDriverGetNextAssignment.getText().toString());
-					jobID = db.getJob(driverIDGetNextJob);
-					lblJobID.setText(jobID);
-				}
-				catch (NumberFormatException nfe) {
-					//Show a dialog if the input has not been correct
-					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
-				}
-			}
-		});
+public String updateDriver(int driverID, String[] name) {
+    try {
+        response = statement.executeQuery("SELECT id_driver FROM drivers WHERE id_driver=" + driverID);
+        if (response.next()) {
+            statement.execute("UPDATE drivers SET prename='" + name[0] + "', surname='" + name[1] + "' WHERE id_driver=" + driverID);
+            return "Fahrer " + driverID + " erfolgreich geändert.";
+        } else {
+            return "Fahrernummer " + driverID + " nicht vorhanden.";
+        }
+    }
+    catch (SQLException e) {
+        System.err.print("updateDriver SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
 
-		//Mark the order as delivered
-		JButton btnAssignmentDelivered = new JButton("Auftrag erledigt");
-		btnAssignmentDelivered.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
-					db.finishedJob(jobDoneDriverID);
-					//Show a dialog with the current state of the process
-					JOptionPane.showMessageDialog(frame, "Auftrag ist als erledigt markiert!");
-				}
-				catch (NumberFormatException nfe) {
-					//Show a dialog with the input of driver's id contains letters
-					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
-				}
-			}
-		});
-		
-		prenameDriver = new HintTextField("Prename");
-		prenameDriver.setColumns(10);
-		
-		surnameDriver = new HintTextField("Surname");
-		surnameDriver.setColumns(10);
-		
-		idUpdateDriver = new HintTextField("FahrerID");
-		idUpdateDriver.setColumns(10);
-		
-		prenameUpdate = new HintTextField("New prename");
-		prenameUpdate.setColumns(10);
-		
-		surnameUpdate = new HintTextField("New surname");
-		surnameUpdate.setColumns(10);
-		
-		idDriverJobDone = new HintTextField("FahrerID");
-		idDriverJobDone.setColumns(10);
-		
-		street = new HintTextField("Str. Nr");
-		street.setColumns(10);
-		
-		pickUpStreet = new HintTextField("Start Str. Nr.");
-		pickUpStreet.setColumns(10);
-		
-		pickUpAvenue = new HintTextField("Start Av. Nr.");
-		pickUpAvenue.setColumns(10);
-		
-		destinationStreet = new HintTextField("Ziel Str. Nr.");
-		destinationStreet.setColumns(10);
-		
-		destinationAvenue = new HintTextField("Ziel Av. Nr.");
-		destinationAvenue.setColumns(10);
-		
-		idDriverGetNextAssignment = new HintTextField("FahrerID");
-		idDriverGetNextAssignment.setColumns(10);
-		
-		JLabel lblAuftragErledigt = new JLabel("Auftrag erledigt");
-		
-		JLabel lblNchstenAuftrag = new JLabel("n\u00E4chsten Auftrag");
-		
-		JLabel lblFahrerndern = new JLabel("Fahrer \u00E4ndern");
-		
-		JLabel lblFahrerndern_1 = new JLabel("Fahrer einf\u00FCgen");
-		
-		JLabel lblAuftragAnlegen = new JLabel("Auftrag anlegen");
-		
-		lblJobID = new JLabel("Auftragsnummer");
-		
-		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblFahrerndern, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(idUpdateDriver, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(prenameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(btnUpdateDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, 74, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(pickUpAvenue, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-									.addGap(6)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
-									.addGap(18)
-									.addComponent(btnNewAssignment, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(prenameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(surnameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addGap(18)
-									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)))
-							.addPreferredGap(ComponentPlacement.RELATED))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblNchstenAuftrag, GroupLayout.PREFERRED_SIZE, 139, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)
-							.addGap(14)
-							.addComponent(lblJobID, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblAuftragErledigt, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(btnAssignmentDelivered, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblFahrerndern_1, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(10)
-							.addComponent(lblManager, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(lblAuftragAnlegen)))
-					.addContainerGap(27, GroupLayout.PREFERRED_SIZE))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(25)
-					.addComponent(lblManager, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(lblAuftragAnlegen)
-					.addGap(7)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(pickUpStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(destinationAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(pickUpAvenue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(destinationStreet, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnNewAssignment))
-					.addGap(11)
-					.addComponent(lblFahrerndern_1)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(prenameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(surnameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(lblFahrerndern)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(idUpdateDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(prenameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnUpdateDriver))
-					.addGap(42)
-					.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(lblNchstenAuftrag)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblJobID)
-						.addComponent(btnGetNextAssignment))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(lblAuftragErledigt)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnAssignmentDelivered))
-					.addGap(42))
-		);
-		frame.getContentPane().setLayout(groupLayout);
-	}
+public String getJob(int driverID) {
+    try {
+        response = statement.executeQuery("SELECT id_driver FROM assigned WHERE id_driver=" + driverID);
+        if (!response.next()) {
+            response = statement.executeQuery("SELECT id_address FROM locations WHERE id_driver=" + driverID);
+            response.next();
+            int locationID = response.getInt(1);
+            int[] closestJob = getClosestJob(locationID);
+            if (closestJob != null) {
+                statement.execute("INSERT INTO assigned VALUES(" + closestJob[0] + ", " + driverID + ")");
+                statement.execute("UPDATE assignments SET id_driver=" + driverID + " WHERE id_assignment =" + closestJob[0]);
+                String jobInfo = "ID=" + closestJob[0] + " von " + closestJob[1] + "St./" + closestJob[2] + "Av., nach " + closestJob[3] + "St./" + closestJob[4] + "Av.";
+                return jobInfo;
+            } else {
+                return "Derzeit keine neuen Aufträge vorhanden.";
+            }
+        } else {
+            return "Fahrer " + driverID + " bearbeitet bereits einen Auftrag.";
+        }
+    }
+    catch (SQLException e) {
+        System.err.print("getJob SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
+
+public String finishedJob (int driverID) {
+    try {
+        response = statement.executeQuery("SELECT id_driver FROM assigned WHERE id_driver=" + driverID);
+        if (response.next()) {
+            response = statement.executeQuery("SELECT id_assignment FROM assignments WHERE id_driver=" + driverID + " AND done= 'N'");
+            response.next();
+            int assignmentID = response.getInt(1);
+            statement.execute("UPDATE assignments SET done='Y' WHERE id_assignment=" + assignmentID);
+            statement.execute("DELETE FROM assigned WHERE id_assignment=" + assignmentID);
+            response = statement.executeQuery("SELECT id_address FROM destination WHERE id_assignment=" + assignmentID);
+            response.next();
+            int addressID = response.getInt(1);
+            statement.execute("UPDATE locations SET id_address=" + addressID + " WHERE id_driver=" + driverID);
+            return "Auftrag " + assignmentID + " erfolgreich bageschlossen.";
+        } else {
+            return "Fahrer " + driverID + " bearbeitet derzeit keinen Auftrag.";
+        }
+    }
+    catch (SQLException e) {
+        System.err.print("finishedJob SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
+
+private int[] getClosestJob(int currentLocationID) {
+    try {
+        response = statement.executeQuery("SELECT street, avenue FROM address WHERE id_address =" + currentLocationID);
+        response.next();
+        int locationStreet = response.getInt("street");
+        int locationAvenue = response.getInt("avenue");
+        response = statement.executeQuery("SELECT assignments.id_assignment, address.street, address.avenue " +
+                "FROM assignments, origin, address WHERE assignments.done='N' AND assignments.id_driver=-1 " +
+                "AND assignments.id_assignment = origin.id_assignment AND origin.id_address = address.id_address");
+        int[] closestJob = {-1, -1, -1, -1, -1};
+        int distance = -1;
+        while(response.next()) {
+            int jobStreet = response.getInt("street");
+            int jobAvenue = response.getInt("avenue");
+            int currentDist = Math.abs(locationStreet - jobStreet) + Math.abs(locationAvenue - jobAvenue);
+            if (distance == -1 || distance > currentDist) {
+                closestJob[0] = response.getInt("id_assignment");
+                distance = currentDist;
+                closestJob[1] = jobStreet;
+                closestJob[2] = jobAvenue;
+            }
+        }
+        response = statement.executeQuery("SELECT address.street, address.avenue FROM destination, address " +
+                "WHERE destination.id_address = address.id_address AND destination.id_assignment=" + closestJob[0]);
+        response.next();
+        closestJob[3] = response.getInt("street");
+        closestJob[4] = response.getInt(("avenue"));
+        return closestJob;
+    }
+    catch (SQLException e) {
+        System.err.print("getClosest SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return null;
+    }
+}
+
+public int getAddressID (int[] values) {
+    try {
+        String getAddressIDStr = "SELECT id_address FROM address WHERE street=" + values[0] + " AND avenue=" + values[1];
+        response = statement.executeQuery(getAddressIDStr);
+        if (!response.next()) {
+            statement.execute("INSERT INTO address(street, avenue) VALUES(" + values[0]+ ", " + values[1] + ")");
+            response = statement.executeQuery(getAddressIDStr);
+            response.next();
+        }
+        return response.getInt("id_address");
+    }
+    catch (SQLException e) {
+        System.err.print("getAddress SQL-Ausnahme: ");
+        System.err.println(e.getMessage());
+        return -1;
+    }
+}
 }
