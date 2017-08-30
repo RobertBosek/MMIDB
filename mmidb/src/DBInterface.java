@@ -1,23 +1,18 @@
-import java.awt.Component;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.InputMismatchException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class DBInterface extends JFrame {
-	
-	//Initialisierung der Variablen und UI-Elemente
+public class DBInterface {
+
 	public static DBAdministration db;
 	private JFrame frame;
 	private JTextField prenameDriver;
@@ -40,23 +35,19 @@ public class DBInterface extends JFrame {
 	 
 	//DB Connection
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				//try - catch block
-				try 
-				{
-					NewWindow frame = new NewWindow();
-					frame.setVisible(true);					
-				}
-				catch (Exception e) 
-				{
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					DBInterface window = new DBInterface();
+					window.frame.setVisible(true);
+					String url = "jdbc:mysql://132.199.139.24:3306/mmdb17_robertbosek?user=r.bosek&password=mmdb";
+				    db = new DBAdministration(url);
+					} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
-		}
+	}
 
 	public DBInterface() {
 		initialize();
@@ -84,9 +75,10 @@ public class DBInterface extends JFrame {
 					destinationAddress[1] = Integer.parseInt(destinationAvenue.getText().toString());
 					//Auftragsnummer
 					jobID = (db.insertJob(pickUpAddress, destinationAddress)); 
+					JOptionPane.showMessageDialog(frame, "Der Auftrag ist angelegt!");
 				}
 				catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(frame, "Die Felder bestehen nur aus Ziffern!");
+					JOptionPane.showMessageDialog(frame, "Bitte geben Sie nur die Nummer der Strasse und der Avenue ein!");
 				}
 			}	
 		});
@@ -97,8 +89,10 @@ public class DBInterface extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {	
 				boolean hasNumbers = false;
 				String[] driverName = new String[2];
-				driverName [0] = prenameDriver.getText();
-				driverName [1] = surnameDriver.getText();
+				
+				//Convert the User's input to lower case and then check if the input contains only letters
+				driverName [0] = prenameDriver.getText().toLowerCase();
+				driverName [1] = surnameDriver.getText().toLowerCase();
 
 				for(int i = 0; i < driverName[0].length(); i++) {
 					for(int j = 0; j < driverName[1].length(); j++) {
@@ -115,18 +109,18 @@ public class DBInterface extends JFrame {
 					}
 				if(hasNumbers == true) {
 					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
-					} else {
+					} else { 
+						db.insertDriver(driverName);
 						db.getAddressID(home);
+						JOptionPane.showMessageDialog(frame, "Fahrer eingetragen!");
 						}
 				}
 			});
 		
-		//Fahrer ändern
 		JButton btnUpdateDriver = new JButton("Fahrer \u00E4ndern");
 		btnUpdateDriver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int idToUpdate = 0;
-				boolean hasNumbers = false;
 				try {
 					idToUpdate = Integer.parseInt(idUpdateDriver.getText().toString());
 				}
@@ -135,26 +129,27 @@ public class DBInterface extends JFrame {
 				}
 				
 				String[] driverNameUpdate = new String[3];
-				driverNameUpdate [0] = prenameUpdate.getText();
-				driverNameUpdate [1] = surnameUpdate.getText();
-				
+				//Convert the User's input to lower case and then check if the input contains only letters
+				driverNameUpdate [0] = prenameUpdate.getText().toLowerCase();
+				driverNameUpdate [1] = surnameUpdate.getText().toLowerCase();
+				boolean hasNumbers = false;
+
 				for(int i = 0; i < driverNameUpdate[0].length(); i++) {
 					for(int j = 0; j < driverNameUpdate[1].length(); j++) {
 						if(driverNameUpdate[0].charAt(i) >'a' && driverNameUpdate[0].charAt(i) <'z') {
-							if(driverNameUpdate[1].charAt(j) >'a') {
-								if(driverNameUpdate[1].charAt(j) <'z'){
-									hasNumbers = false;
-									}
-								}
-							}else {
+							if(driverNameUpdate[1].charAt(j) >'a' && driverNameUpdate[1].charAt(j) <'z')
+								hasNumbers = false;
+								} else {
 								hasNumbers = true;
 								}
 						}
 					}
+				
 				if(hasNumbers == true) {
 					JOptionPane.showMessageDialog(frame, "Die Namen bestehen nur aus Buchstaben!");
 					} else { 
 						db.updateDriver(idToUpdate, driverNameUpdate);
+						JOptionPane.showMessageDialog(frame, "Fahrer geändert!");
 						}
 				}
 			});
@@ -182,6 +177,7 @@ public class DBInterface extends JFrame {
 				try {
 					int jobDoneDriverID = Integer.parseInt(idDriverJobDone.getText().toString());
 					db.finishedJob(jobDoneDriverID);
+					JOptionPane.showMessageDialog(frame, "Auftrag ist als erledigt markiert!");
 				}
 				catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(frame, "FahrerID besteht nur aus Ziffern!");
@@ -354,10 +350,5 @@ public class DBInterface extends JFrame {
 					.addGap(42))
 		);
 		frame.getContentPane().setLayout(groupLayout);
-	}
-
-	public Component getPanel() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
