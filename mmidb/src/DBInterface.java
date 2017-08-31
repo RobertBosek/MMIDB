@@ -24,8 +24,8 @@ public class DBInterface {
 	private JTextField street;
 	private JTextField destinationStreet;
 	private JTextField destinationAvenue;
-	private int[] pickUpAddress = new int[3];
-	private int[] destinationAddress = new int[3];
+	private int[] pickUpAddress = new int[2];
+	private int[] destinationAddress = new int[2];
 	private int[] home = new int[2];
 	private JTextField pickUpStreet;
 	private JTextField pickUpAvenue;
@@ -129,7 +129,7 @@ public class DBInterface {
 					JOptionPane.showMessageDialog(frame, "FahrerID sollte nur aus Ziffern bestehen!");
 				}
 				
-				String[] driverNameUpdate = new String[3];
+				String[] driverNameUpdate = new String[2];
 				
 				//Convert the user's input to lower case and then check if the input contains only letters
 				driverNameUpdate [0] = prenameUpdate.getText().toLowerCase();
@@ -258,7 +258,7 @@ public class DBInterface {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(surnameUpdate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addGap(18)
-							.addComponent(btnUpdateDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
+							.addComponent(btnUpdateDriver, GroupLayout.PREFERRED_SIZE, 156, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
@@ -277,7 +277,7 @@ public class DBInterface {
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(surnameDriver, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 									.addGap(18)
-									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))))
+									.addComponent(btnInsertDriver, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE))))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblFahrer, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE))
@@ -286,17 +286,7 @@ public class DBInterface {
 							.addComponent(lblNchstenAuftrag, GroupLayout.PREFERRED_SIZE, 139, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
 							.addComponent(lblAuftragErledigt, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
-							.addGap(18)
-							.addComponent(btnAssignmentDelivered, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblFahrerndern_1, GroupLayout.PREFERRED_SIZE, 86, GroupLayout.PREFERRED_SIZE))
@@ -305,7 +295,18 @@ public class DBInterface {
 							.addComponent(lblManager, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(lblAuftragAnlegen)))
+							.addComponent(lblAuftragAnlegen))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(idDriverJobDone, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(btnAssignmentDelivered, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+									.addComponent(idDriverGetNextAssignment, GroupLayout.PREFERRED_SIZE, 53, GroupLayout.PREFERRED_SIZE)
+									.addGap(18)
+									.addComponent(btnGetNextAssignment, GroupLayout.PREFERRED_SIZE, 194, GroupLayout.PREFERRED_SIZE)))))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
